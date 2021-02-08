@@ -1,0 +1,109 @@
+* cascading-dir-locals.el
+
+Provides a global minor mode that changes how Emacs handles the lookup
+of applicable dir-locals files (=.dir-locals.el=): instead of starting
+at the directory of the visited file and moving up the directory tree
+only until a first dir-locals file is found, collect and apply all (!)
+dir-locals files found from the current directory up to the root one.
+
+Values specified in files nearer to the current directory take
+precedence over values in files farther away from it.
+
+You might want to use this to set dir-local variables that apply to all
+of your projects only once, then override or add variables on a
+per-project basis.
+
+See below for an [[#Example][example]] and [[#Caveats][caveats]].
+
+* Installation
+
+If you use MELPA, an easy way to install this package is via
+=package-install=. Alternatively, download =cascading-dir-locals.el=,
+put it in your =load-path= and =require= it. Finally, use
+=(cascading-dir-locals-mode 1)= or =M-x cascading-dir-locals-mode= to
+turn on the provided minor mode.
+
+If you use both MELPA and =use-package=, you can use this, too:
+
+#+begin_src emacs-lisp
+(use-package cascading-dir-locals
+  :ensure t
+  :config
+  (cascading-dir-locals-mode 1))
+#+end_src
+
+* Example
+
+Consider this example directory tree:
+
+#+begin_example
+home/
+  fritz/
+    .dir-locals.el { a=1, b=2 }
+    foo/
+      .dir-locals.el { b=19, c=20 }
+      bar/
+        baz.txt
+#+end_example
+
+When this minor mode is enabled, opening =/home/fritz/foo/bar/baz.txt=
+will apply =a=1=, =b=19= and =c=20=. When it's disabled, opening the
+file will apply =b=19= and =c=20= only (default behavior).
+
+If you try this out and don't get the results you expected, please make
+sure that you're actually opening a file vs. just switching to its
+pre-existing buffer (directory local variables only get applied when
+opening a file).
+
+Please also make sure to clear the cache of dir-locals files if you had
+previously opened the file while =cascading-dir-locals-mode= was still
+disabled (see caveats below).
+
+* Caveats
+
+Note that Emacs maintains a cache of dir-locals files and their content
+so it doesn't have to process them over and over again. In simplified
+terms, it uses the name of the directory that stores the found
+dir-locals file as the cache key for that file and invalidates the cache
+entry when it detects a change in the file (based on modification time).
+
+Because of the way Emacs and =cascading-dir-locals-mode= work, changes
+to any dir-locals files other than the one that's nearest to the current
+directory do not invalidate the cache and /therefore go unnoticed/. For
+the example above, if you open =baz.txt=, then change the contents of
+=/home/fritz/.dir-locals.el=, then close and re-open =baz.txt=, your
+updates to the dir-locals file will /not be detected/.
+
+You'd have to manually clear the cache (or restart Emacs) to force a
+re-read of the changed dir-locals file:
+
+#+begin_src elisp
+(setq dir-locals-directory-cache nil) ;; clear cache
+#+end_src
+
+While this sounds like a grave drawback, it turns out to be a non-issue
+in my day to day life as I rarely change shared dir-local variables.
+Ymmv, obviously.
+
+* Debugging
+
+Set =cascading-dir-locals-debug= to a non-nil value to print debug
+messages regarding the lookup and collection of dir-locals files to the
+=*Messages*= buffer. For the example above, opening =baz.txt= in a fresh
+Emacs session (that is, with an empty dir-locals cache, see caveats
+above) would result in the following debug messages:
+
+#+begin_example
+#<foo.txt>: looking for dir-locals files in ~/foo/bar/
+#<foo.txt>: looking for dir-locals files in ~/foo/
+#<foo.txt>: looking for dir-locals files in ~/
+#<foo.txt>: looking for dir-locals files in /home/
+#<foo.txt>: looking for dir-locals files in /
+#<foo.txt>: collecting dir-local variables from ~/.dir-locals.el
+#<foo.txt>: collecting dir-local variables from ~/foo/.dir-locals.el
+#+end_example
+
+If you expect to see debug messages but get nothing, it very likely
+means that there is an entry in the dir-locals cache for the directory
+of the dir-locals file that is the nearest to the current directory.
+Please see the note on caveats above for how to fix this.
