@@ -42,6 +42,7 @@
 ;;; Code:
 
 (eval-when-compile (require 'subr-x))
+(require 'seq)
 
 (defcustom cascading-dir-locals-debug nil
   "When non-nil, print debug messages regarding the lookup and collection of dir-locals files."
