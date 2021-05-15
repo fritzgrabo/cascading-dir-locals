@@ -32,6 +32,12 @@ If you use both MELPA and =use-package=, you can use this, too:
   (cascading-dir-locals-mode 1))
 #+end_src
 
+** GNU Guix
+
+If you use [[https://guix.gnu.org/][GNU Guix]], this package can be installed via =guix install
+emacs-cascading-dir-locals=.  Once installed, edit your Emacs configuration as
+above to enable the package.
+
 * Example
 
 Consider this example directory tree:
