@@ -27,7 +27,7 @@ If you use both MELPA and =use-package=, you can use this, too:
 
 #+begin_src emacs-lisp
 (use-package cascading-dir-locals
-  :ensure t
+  :ensure
   :config
   (cascading-dir-locals-mode 1))
 #+end_src
