@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2021 Fritz Grabo
 
-;; Author: Fritz Grabo <me@fritzgrabo.com>
+;; Author: Fritz Grabo <hello@fritzgrabo.com>
 ;; URL: https://github.com/fritzgrabo/cascading-dir-locals
 ;; Version: 0.1
 ;; Package-Requires: ((emacs "26.1"))
